@@ -1,5 +1,7 @@
 package GUI;
 
+import java.util.ArrayList;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -15,10 +17,13 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import schach.daten.Xml;
+import schach.daten.D;
+import schach.daten.D_Belegung;
 import schach.backend.BackendSpielAdminStub;
 import schach.backend.BackendSpielStub;
 
 public class GUI extends Application {
+	
 	private Schachbrett brett;
 	private boolean playerWhite;
 	private static int id_spiel = 1;
@@ -58,8 +63,9 @@ public class GUI extends Application {
 		title.setFont(Font.font(18));
 		Text playerBlackText = new Text("Schwarz");
 		playerBlackText.setFont(Font.font(16));
-		Text playerWhiteText = new Text("Weiﬂ");
+		Text playerWhiteText = new Text("Weiss");
 		playerWhiteText.setFont(Font.font(16));
+		this.displayBelegung();
 
 		currentPlayerDisplay.getChildren().add(title);
 
@@ -100,16 +106,16 @@ public class GUI extends Application {
 	}
 
 	private void loadGame() {
-		Xml.toD(admin.ladenSpiel(id_spiel, pfad_spiel)); // geht glaube ich noch
+		admin.ladenSpiel(id_spiel, pfad_spiel); // geht glaube ich noch
 															// nicht
 	}
 
 	private void saveGame() {
-		Xml.toD(admin.speichernSpiel(id_spiel, pfad_spiel));
+		admin.speichernSpiel(id_spiel, pfad_spiel);
 	}
 
 	private void newGame() {
-		Xml.toD(admin.neuesSpiel(id_spiel));
+		admin.neuesSpiel(id_spiel);
 
 	}
 
@@ -117,5 +123,10 @@ public class GUI extends Application {
 	private void onQuit() {
 		Platform.exit();
 		System.exit(0);
+	}
+
+	private void displayBelegung() {
+		ArrayList<D> belegung = Xml.toArray(spiel.getAktuelleBelegung(id_spiel));
+		brett.updateSchachbrett(belegung);
 	}
 }
