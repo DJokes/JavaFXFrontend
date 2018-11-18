@@ -15,118 +15,115 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-import schach.daten.Xml;
-import schach.daten.D;
-import schach.daten.D_Belegung;
 import schach.backend.BackendSpielAdminStub;
 import schach.backend.BackendSpielStub;
+import schach.daten.D;
+import schach.daten.Xml;
 
 public class GUI extends Application {
-	
-	private Schachbrett brett;
-	private boolean playerWhite;
-	private static int id_spiel = 1;
-	private static String pfad_spiel = "spiel1";
-	private static String url = "http://www.game-engineering.de:8080/rest/";
-	private static boolean logging = true;
-	BackendSpielAdminStub admin = new BackendSpielAdminStub(url, logging);
-	BackendSpielStub spiel = new BackendSpielStub(url, logging);
 
-	public static void main(String[] args) {
+    private Schachbrett brett;
+    private boolean playerWhite;
+    private static int id_spiel = 1;
+    private static String pfad_spiel = "spiel1";
+    private static String url = "http://www.game-engineering.de:8080/rest/";
+    private static boolean logging = true;
+    BackendSpielAdminStub admin = new BackendSpielAdminStub(url, logging);
+    BackendSpielStub spiel = new BackendSpielStub(url, logging);
 
-		launch(args);
+    public static void main(final String[] args) {
 
-	}
+	launch(args);
 
-	@Override
-	public void start(Stage firstStage) throws Exception {
-		firstStage.setTitle("Schach");
-		firstStage.getIcons().add(new Image("GUI/icons/konigin-schach-stuck-schwarze-form_318-60263.jpg"));
+    }
 
-		BorderPane root = new BorderPane();
-		Scene firstScene = new Scene(root);
-		firstStage.setScene(firstScene);
-		firstScene.getStylesheets().add("GUI/stylesheet.css");
+    @Override
+    public void start(final Stage firstStage) throws Exception {
+	firstStage.setTitle("Schach");
+	firstStage.getIcons().add(new Image("GUI/icons/konigin-schach-stuck-schwarze-form_318-60263.jpg"));
 
-		brett = new Schachbrett(playerWhite);
-		root.setCenter(brett);
+	final BorderPane root = new BorderPane();
+	final Scene firstScene = new Scene(root);
+	firstStage.setScene(firstScene);
+	firstScene.getStylesheets().add("GUI/stylesheet.css");
 
-		MenuBar menuBar = chessMenuBar();
-		root.setTop(menuBar);
+	this.brett = new Schachbrett(this.playerWhite);
+	root.setCenter(this.brett);
 
-		VBox currentPlayerDisplay = new VBox();
-		currentPlayerDisplay.setPadding(new Insets(2));
-		currentPlayerDisplay.setSpacing(10);
+	final MenuBar menuBar = this.chessMenuBar();
+	root.setTop(menuBar);
 
-		Text title = new Text("Aktueller Spieler:");
-		title.setFont(Font.font(18));
-		Text playerBlackText = new Text("Schwarz");
-		playerBlackText.setFont(Font.font(16));
-		Text playerWhiteText = new Text("Weiss");
-		playerWhiteText.setFont(Font.font(16));
-		this.displayBelegung();
+	final VBox currentPlayerDisplay = new VBox();
+	currentPlayerDisplay.setPadding(new Insets(2));
+	currentPlayerDisplay.setSpacing(10);
 
-		currentPlayerDisplay.getChildren().add(title);
+	final Text title = new Text("Aktueller Spieler:");
+	title.setFont(Font.font(18));
+	final Text playerBlackText = new Text("Schwarz");
+	playerBlackText.setFont(Font.font(16));
+	final Text playerWhiteText = new Text("Weiss");
+	playerWhiteText.setFont(Font.font(16));
+	this.displayBelegung();
 
-		currentPlayerDisplay.getChildren().add(playerWhiteText);
+	currentPlayerDisplay.getChildren().add(title);
 
-		// if (blabla schwarzer spieler. dran)
-		// currentPlayerDisplay.getChildren().add(playerBlack);
+	currentPlayerDisplay.getChildren().add(playerWhiteText);
 
-		root.setLeft(currentPlayerDisplay);
+	// if (blabla schwarzer spieler. dran)
+	// currentPlayerDisplay.getChildren().add(playerBlack);
 
-		
-		firstStage.show();
-
-	}
-
-	private MenuBar chessMenuBar() {
-		MenuBar menuBar = new MenuBar();
-		Menu gameMenu = new Menu("Spiel");
-
-		menuBar.getMenus().add(gameMenu);
-
-		MenuItem menuItemExit = new MenuItem("Exit");
-		MenuItem menuItemNewGame = new MenuItem("Neues Spiel");
-		MenuItem menuItemSaveGame = new MenuItem("Speichere Spiel");
-		MenuItem menuItemLoadGame = new MenuItem("Lade Spiel");
-
-		menuItemExit.setOnAction(e -> onQuit());
-		menuItemNewGame.setOnAction(e -> newGame());
-		menuItemSaveGame.setOnAction(e -> saveGame());
-		menuItemLoadGame.setOnAction(e -> loadGame());
-
-		gameMenu.getItems().add(menuItemNewGame);
-		gameMenu.getItems().add(menuItemLoadGame);
-		gameMenu.getItems().add(menuItemSaveGame);
-		gameMenu.getItems().add(menuItemExit);
-
-		return menuBar;
-	}
-
-	private void loadGame() {
-		admin.ladenSpiel(id_spiel, pfad_spiel); // geht glaube ich noch
-															// nicht
-	}
-
-	private void saveGame() {
-		admin.speichernSpiel(id_spiel, pfad_spiel);
-	}
-
-	private void newGame() {
-		admin.neuesSpiel(id_spiel);
-
-	}
+	root.setLeft(currentPlayerDisplay);
 
 
-	private void onQuit() {
-		Platform.exit();
-		System.exit(0);
-	}
+	firstStage.show();
 
-	private void displayBelegung() {
-		ArrayList<D> belegung = Xml.toArray(spiel.getAktuelleBelegung(id_spiel));
-		brett.updateSchachbrett(belegung);
-	}
+    }
+
+    private MenuBar chessMenuBar() {
+	final MenuBar menuBar = new MenuBar();
+	final Menu gameMenu = new Menu("Spiel");
+
+	menuBar.getMenus().add(gameMenu);
+
+	final MenuItem menuItemExit = new MenuItem("Exit");
+	final MenuItem menuItemNewGame = new MenuItem("Neues Spiel");
+	final MenuItem menuItemSaveGame = new MenuItem("Speichere Spiel");
+	final MenuItem menuItemLoadGame = new MenuItem("Lade Spiel");
+
+	menuItemExit.setOnAction(e -> this.onQuit());
+	menuItemNewGame.setOnAction(e -> this.newGame());
+	menuItemSaveGame.setOnAction(e -> this.saveGame());
+	menuItemLoadGame.setOnAction(e -> this.loadGame());
+
+	gameMenu.getItems().add(menuItemNewGame);
+	gameMenu.getItems().add(menuItemLoadGame);
+	gameMenu.getItems().add(menuItemSaveGame);
+	gameMenu.getItems().add(menuItemExit);
+
+	return menuBar;
+    }
+
+    private void loadGame() {
+	this.admin.ladenSpiel(id_spiel, pfad_spiel); // geht glaube ich noch nicht
+    }
+
+    private void saveGame() {
+	this.admin.speichernSpiel(id_spiel, pfad_spiel);
+    }
+
+    private void newGame() {
+	this.admin.neuesSpiel(id_spiel);
+
+    }
+
+
+    private void onQuit() {
+	Platform.exit();
+	System.exit(0);
+    }
+
+    private void displayBelegung() {
+	final ArrayList<D> belegung = Xml.toArray(this.spiel.getAktuelleBelegung(id_spiel));
+	this.brett.updateSchachbrett(belegung);
+    }
 }

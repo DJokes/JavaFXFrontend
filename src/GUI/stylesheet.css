@@ -1,4 +1,4 @@
-.chess-space{
+.chess-space {
 	/* stage size (400)/8 spaces */
 	-fx-min-height:  50px;
 	-fx-min-width:   50px;
@@ -8,13 +8,13 @@
 	-fx-max-width:   50px;
 	
 	/* prevent rounded buttons */
-	-fx-background-radius: 0em;
+	-fx-background-radius: 0px;
 }
 
-.chess-kachel-color{
-	-fx-background-color:gray;
+.chess-kachel-color {
+	-fx-background-color: gray;
 }
 
-.chess-kachel-nocolor{
-	-fx-background-color:white;
+.chess-kachel-nocolor {
+	-fx-background-color: white;
 }
