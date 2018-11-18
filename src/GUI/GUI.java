@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -12,7 +11,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import schach.backend.BackendSpielAdminStub;
@@ -23,62 +21,69 @@ import schach.daten.Xml;
 public class GUI extends Application {
 
     private Schachbrett brett;
-    private boolean playerWhite;
+    private boolean currentPlayerColor;
     private static int id_spiel = 1;
     private static String pfad_spiel = "spiel1";
-    private static String url = "http://www.game-engineering.de:8080/rest/";
+    private static String rest_basis = "http://www.game-engineering.de:8080/rest/";
     private static boolean logging = true;
-    BackendSpielAdminStub admin = new BackendSpielAdminStub(url, logging);
-    BackendSpielStub spiel = new BackendSpielStub(url, logging);
+    BackendSpielAdminStub admin = new BackendSpielAdminStub(rest_basis, logging);
+    BackendSpielStub spiel = new BackendSpielStub(rest_basis, logging);
 
+    // Starte FX
     public static void main(final String[] args) {
-
 	launch(args);
-
     }
 
     @Override
-    public void start(final Stage firstStage) throws Exception {
-	firstStage.setTitle("Schach");
-	firstStage.getIcons().add(new Image("GUI/icons/konigin-schach-stuck-schwarze-form_318-60263.jpg"));
+    public void start(final Stage primaryStage) throws Exception {
 
+	// Spieler Schwarz startet!
+	this.setCurrentPlayerColor(true);
+
+	// Setze Titel und Favicon des Hauptfensters
+	primaryStage.setTitle("Schach");
+	primaryStage.getIcons().add(new Image("GUI/resources/border_image.png"));
+
+	// Setze LayoutManager, Contentmanager, Resizable und CSS-File
 	final BorderPane root = new BorderPane();
 	final Scene firstScene = new Scene(root);
-	firstStage.setScene(firstScene);
-	firstScene.getStylesheets().add("GUI/stylesheet.css");
+	primaryStage.setScene(firstScene);
+	primaryStage.setResizable(false);
+	firstScene.getStylesheets().add("GUI/styles_primary_stage.css");
 
-	this.brett = new Schachbrett(this.playerWhite);
-	root.setCenter(this.brett);
+	// Setze das Schachbrett auf die rechte Seite (preferred width ausschlaggebend)
+	this.brett = new Schachbrett();
+	root.setRight(this.brett);
 
+	// Erzeuge die Toolbar am Kopf
 	final MenuBar menuBar = this.chessMenuBar();
 	root.setTop(menuBar);
 
+	// Erzeuge vertikale Box (Welcher Spieler ist dran?)
 	final VBox currentPlayerDisplay = new VBox();
-	currentPlayerDisplay.setPadding(new Insets(2));
-	currentPlayerDisplay.setSpacing(10);
-
+	currentPlayerDisplay.setId("current-player-box");
+	// Setze Inhalt der Box (statisch)
 	final Text title = new Text("Aktueller Spieler:");
-	title.setFont(Font.font(18));
-	final Text playerBlackText = new Text("Schwarz");
-	playerBlackText.setFont(Font.font(16));
-	final Text playerWhiteText = new Text("Weiss");
-	playerWhiteText.setFont(Font.font(16));
-	this.displayBelegung();
-
+	title.setId("current-player-headline");
+	final Text currentPlayerColor = new Text(this.getCurrentPlayerColorString());
+	currentPlayerColor.setId("current-player-color");
 	currentPlayerDisplay.getChildren().add(title);
+	// Workaround wegen fehlendem margin-Attribut
+	currentPlayerDisplay.getChildren().add(new Text());
+	currentPlayerDisplay.getChildren().add(currentPlayerColor);
 
-	currentPlayerDisplay.getChildren().add(playerWhiteText);
-
-	// if (blabla schwarzer spieler. dran)
-	// currentPlayerDisplay.getChildren().add(playerBlack);
-
+	// Setze die vertikale Box ins Layout
 	root.setLeft(currentPlayerDisplay);
 
+	// Erzeuge die Brettbelegung
+	this.displayBelegung();
 
-	firstStage.show();
+	// Zeige Fenster an
+	primaryStage.show();
 
     }
 
+    // Erzeugt die Toolbar
     private MenuBar chessMenuBar() {
 	final MenuBar menuBar = new MenuBar();
 	final Menu gameMenu = new Menu("Spiel");
@@ -103,27 +108,56 @@ public class GUI extends Application {
 	return menuBar;
     }
 
+    // Lade Spiel
     private void loadGame() {
-	this.admin.ladenSpiel(id_spiel, pfad_spiel); // geht glaube ich noch nicht
+	this.admin.ladenSpiel(id_spiel, pfad_spiel); 				// geht glaube ich noch nicht
     }
 
+    // Speichere Spiel
     private void saveGame() {
 	this.admin.speichernSpiel(id_spiel, pfad_spiel);
     }
 
+    // Erzeuge neues Spiel
     private void newGame() {
 	this.admin.neuesSpiel(id_spiel);
 
     }
 
-
+    // Verlasse Spiel
     private void onQuit() {
 	Platform.exit();
 	System.exit(0);
     }
 
+    // Erzeuge das Brett dynamisch
     private void displayBelegung() {
 	final ArrayList<D> belegung = Xml.toArray(this.spiel.getAktuelleBelegung(id_spiel));
 	this.brett.updateSchachbrett(belegung);
     }
+
+    // Setzt den aktuellen Spieler
+    // true = black, false = white
+    public void setCurrentPlayerColor(final boolean color) {
+	this.currentPlayerColor = color;
+    }
+
+    // Gibt den aktuellen Spieler als Boolean zurueck
+    // true = black, false = white
+    public boolean getCurrentPlayerColorBool() {
+	return this.currentPlayerColor;
+    }
+
+    // Gibt den aktuellen Spieler als String zurueck
+    // true = black, false = white
+    public String getCurrentPlayerColorString() {
+
+	if(this.currentPlayerColor) {
+	    return "schwarz";
+	} else {
+	    return "weiss";
+	}
+
+    }
+
 }

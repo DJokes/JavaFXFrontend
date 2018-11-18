@@ -1,36 +1,63 @@
 package GUI;
 
-import javafx.scene.control.Button;
+import javafx.geometry.Pos;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 
-public class Kachel extends Button {
+public class Kachel extends VBox {
 
-    //private ImageView imgview;
+    // Eigenschaften des Objekts
+    private final ImageView imgView;
+    private final Text subtitle;
+    private final int xKoordinate;
+    private final int yKoordinate;
 
 
+    // Erzeuge eine neue Kachel
     public Kachel(final boolean farbe, final int x, final int y) {
 	super();
 
-	this.getStyleClass().add("chess-space");
-	if (farbe) {
-	    this.getStyleClass().add("chess-kachel-color");
+	// Setze die Koordinaten der Kachel
+	this.xKoordinate = x;
+	this.yKoordinate = y;
+
+	// Setze CSS-Klasse fuer die Kachel
+	this.getStyleClass().add("kachel-object");
+
+	// Je nach Feldposition muss die Kachel grau / weiss sein
+	if(farbe) {
+	    this.getStyleClass().add("kachel-gray");
 	} else {
-	    this.getStyleClass().add("chess-kachel-nocolor");
+	    this.getStyleClass().add("kachel-white");
+	}
+
+	// Setze Elemente in die Kachel
+	this.imgView = new ImageView();
+	// Design via Java - ueber CSS nicht moeglich
+	this.imgView.setPreserveRatio(true);
+	this.imgView.setSmooth(true);
+	this.imgView.setFitHeight(40);
+	this.imgView.setFitWidth(40);
+	this.getChildren().add(this.imgView);
+	this.subtitle = new Text();
+	this.subtitle.getStyleClass().add("kachel-object-text");
+	this.getChildren().add(this.subtitle);
+
+	// Setze Elemente der Kachel auf zentriert
+	this.setAlignment(Pos.CENTER);
+
+    }
+
+    // Setzt den Inhalt der Kachel -> Bild
+    // Unproblematisch, da diese Methode erst nach Initialisierung des Objekts aufgerufen wird!
+    public void setContent(final String resource) {
+	if(resource != null) {
+	    final Image img = new Image(resource);
+	    this.imgView.setImage(img);
+	    this.subtitle.setText(this.xKoordinate + " " + this.yKoordinate);
 	}
     }
-
-    public void setImg(final String location) {
-	this.setText(location);
-	//		try {
-	//		this.imgview = new ImageView(new Image(location));
-	//		this.imgview.setVisible(true);
-	//		this.imgview.setFitWidth(7);
-	//		this.imgview.setFitHeight(7);
-	//		} catch(Exception e) {
-	//			System.out.println(e.getMessage());
-	//		}
-    }
-
-
-
 
 }
