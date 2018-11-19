@@ -1,8 +1,10 @@
 package GUI;
 
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
@@ -13,11 +15,17 @@ public class Kachel extends VBox {
     private final Text subtitle;
     private final int xKoordinate;
     private final int yKoordinate;
+    private final Schachbrett brett;
+    private boolean isMarked = false;
+    private String isMarkedFrom;
 
 
     // Erzeuge eine neue Kachel
-    public Kachel(final boolean farbe, final int x, final int y) {
+    public Kachel(final boolean farbe, final int x, final int y, final Schachbrett brett) {
 	super();
+
+	// Assoziation zum Schachbrett
+	this.brett = brett;
 
 	// Setze die Koordinaten der Kachel
 	this.xKoordinate = x;
@@ -48,6 +56,15 @@ public class Kachel extends VBox {
 	// Setze Elemente der Kachel auf zentriert
 	this.setAlignment(Pos.CENTER);
 
+
+	// Implementiert einen Mausklick-Listener als anonyme Klasse (reicht in unserem Fall aus)
+	this.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+	    @Override
+	    public void handle(final MouseEvent e) {
+		Kachel.this.kachelClicked();
+	    }
+	});
+
     }
 
     // Setzt den Inhalt der Kachel -> Bild
@@ -58,6 +75,46 @@ public class Kachel extends VBox {
 	    this.imgView.setImage(img);
 	    this.subtitle.setText(this.xKoordinate + " " + this.yKoordinate);
 	}
+    }
+
+    // Setzt die Kachel zurueck
+    public void removeContent() {
+	this.imgView.setImage(null);
+	this.subtitle.setText("");
+    }
+
+    // Setzt die Kachel als "markiert" / "unmarkiert"
+    public void setMarked(final boolean value) {
+	this.isMarked = value;
+    }
+
+    // Gibt den Wer zurueck, ob Kachel markiert ist
+    public boolean isMarked() {
+	return this.isMarked;
+    }
+
+    // Gibt die Kachel zurueck, von der markiert wurde
+    public String getMarkedFrom() {
+	return this.isMarkedFrom;
+    }
+
+    // Setzt einen Wert fuer die Kachel, von der markiert wurde
+    public void setMarkedFrom(final String from) {
+	this.isMarkedFrom = from;
+    }
+
+    // Wird beim Mausklick auf diese Kachel ausgefuehrt
+    private void kachelClicked() {
+
+	// Wenn Kachel markiert ist
+	if(this.isMarked) {
+	    this.brett.fuehreZugDurch(new int[] {this.xKoordinate, this.yKoordinate}, this.isMarkedFrom);
+	    this.brett.entferneAlleMarker();
+	} else {
+	    this.brett.entferneAlleMarker();
+	    this.brett.holeMoeglicheZuegeFuerEinFeld(new int[] {this.xKoordinate, this.yKoordinate});
+	}
+
     }
 
 }

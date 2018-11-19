@@ -33,7 +33,14 @@
 	-fx-pref-width:  50px;
 }
 
+.kachel-object:hover {
+	-fx-background-color: #A52A2A;
+}
+
 .kachel-object-text {
 	-fx-font-size: 10px;
 }
 
+.kachel-object-marked {
+	-fx-background-color: #006400;
+}

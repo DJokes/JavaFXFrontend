@@ -1,9 +1,6 @@
 package GUI;
 
-import java.util.ArrayList;
-
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -13,21 +10,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import schach.backend.BackendSpielAdminStub;
-import schach.backend.BackendSpielStub;
-import schach.daten.D;
-import schach.daten.Xml;
 
 public class GUI extends Application {
 
     private Schachbrett brett;
-    private boolean currentPlayerColor;
-    private static int id_spiel = 1;
-    private static String pfad_spiel = "spiel1";
-    private static String rest_basis = "http://www.game-engineering.de:8080/rest/";
-    private static boolean logging = true;
-    BackendSpielAdminStub admin = new BackendSpielAdminStub(rest_basis, logging);
-    BackendSpielStub spiel = new BackendSpielStub(rest_basis, logging);
+    private Text currentPlayerColor;
 
     // Starte FX
     public static void main(final String[] args) {
@@ -37,8 +24,11 @@ public class GUI extends Application {
     @Override
     public void start(final Stage primaryStage) throws Exception {
 
-	// Spieler Schwarz startet!
-	this.setCurrentPlayerColor(true);
+	// Assoziation zum Schachbrett
+	this.brett = new Schachbrett(this);
+
+	// Welcher Spieler startet? -> setzen
+	this.brett.getToolClass().setCurrentPlayerColor(this.brett.ermittleSpielerFarbe());
 
 	// Setze Titel und Favicon des Hauptfensters
 	primaryStage.setTitle("Schach");
@@ -52,7 +42,6 @@ public class GUI extends Application {
 	firstScene.getStylesheets().add("GUI/styles_primary_stage.css");
 
 	// Setze das Schachbrett auf die rechte Seite (preferred width ausschlaggebend)
-	this.brett = new Schachbrett();
 	root.setRight(this.brett);
 
 	// Erzeuge die Toolbar am Kopf
@@ -65,21 +54,22 @@ public class GUI extends Application {
 	// Setze Inhalt der Box (statisch)
 	final Text title = new Text("Aktueller Spieler:");
 	title.setId("current-player-headline");
-	final Text currentPlayerColor = new Text(this.getCurrentPlayerColorString());
-	currentPlayerColor.setId("current-player-color");
+	this.currentPlayerColor = new Text(this.brett.getToolClass().getCurrentPlayerColorString());
+	this.currentPlayerColor.setId("current-player-color");
 	currentPlayerDisplay.getChildren().add(title);
 	// Workaround wegen fehlendem margin-Attribut
 	currentPlayerDisplay.getChildren().add(new Text());
-	currentPlayerDisplay.getChildren().add(currentPlayerColor);
+	currentPlayerDisplay.getChildren().add(this.currentPlayerColor);
 
 	// Setze die vertikale Box ins Layout
 	root.setLeft(currentPlayerDisplay);
 
 	// Erzeuge die Brettbelegung
-	this.displayBelegung();
+	this.brett.holeAktuelleBelegung();
 
 	// Zeige Fenster an
 	primaryStage.show();
+
 
     }
 
@@ -95,10 +85,10 @@ public class GUI extends Application {
 	final MenuItem menuItemSaveGame = new MenuItem("Speichere Spiel");
 	final MenuItem menuItemLoadGame = new MenuItem("Lade Spiel");
 
-	menuItemExit.setOnAction(e -> this.onQuit());
-	menuItemNewGame.setOnAction(e -> this.newGame());
-	menuItemSaveGame.setOnAction(e -> this.saveGame());
-	menuItemLoadGame.setOnAction(e -> this.loadGame());
+	menuItemExit.setOnAction(e -> this.brett.onQuit());
+	menuItemNewGame.setOnAction(e -> this.brett.newGame());
+	menuItemSaveGame.setOnAction(e -> this.brett.saveGame());
+	menuItemLoadGame.setOnAction(e -> this.brett.loadGame());
 
 	gameMenu.getItems().add(menuItemNewGame);
 	gameMenu.getItems().add(menuItemLoadGame);
@@ -108,56 +98,9 @@ public class GUI extends Application {
 	return menuBar;
     }
 
-    // Lade Spiel
-    private void loadGame() {
-	this.admin.ladenSpiel(id_spiel, pfad_spiel); 				// geht glaube ich noch nicht
-    }
-
-    // Speichere Spiel
-    private void saveGame() {
-	this.admin.speichernSpiel(id_spiel, pfad_spiel);
-    }
-
-    // Erzeuge neues Spiel
-    private void newGame() {
-	this.admin.neuesSpiel(id_spiel);
-
-    }
-
-    // Verlasse Spiel
-    private void onQuit() {
-	Platform.exit();
-	System.exit(0);
-    }
-
-    // Erzeuge das Brett dynamisch
-    private void displayBelegung() {
-	final ArrayList<D> belegung = Xml.toArray(this.spiel.getAktuelleBelegung(id_spiel));
-	this.brett.updateSchachbrett(belegung);
-    }
-
-    // Setzt den aktuellen Spieler
-    // true = black, false = white
-    public void setCurrentPlayerColor(final boolean color) {
-	this.currentPlayerColor = color;
-    }
-
-    // Gibt den aktuellen Spieler als Boolean zurueck
-    // true = black, false = white
-    public boolean getCurrentPlayerColorBool() {
+    // Gibt das Textfeld mit dem aktuellen Spieler zurueck
+    public Text getPlayerColorText() {
 	return this.currentPlayerColor;
-    }
-
-    // Gibt den aktuellen Spieler als String zurueck
-    // true = black, false = white
-    public String getCurrentPlayerColorString() {
-
-	if(this.currentPlayerColor) {
-	    return "schwarz";
-	} else {
-	    return "weiss";
-	}
-
     }
 
 }
