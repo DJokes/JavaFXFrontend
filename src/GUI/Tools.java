@@ -70,4 +70,16 @@ public class Tools {
 
     }
 
+    // Gibt den aktuellen Spieler als englischen String zurueck
+    // true = black, false = white
+    public String getCurrentPlayerColorStringEnglish() {
+
+	if(this.currentPlayerColor) {
+	    return "black";
+	} else {
+	    return "white";
+	}
+
+    }
+
 }

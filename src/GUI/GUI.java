@@ -1,6 +1,8 @@
 package GUI;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -10,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class GUI extends Application {
 
@@ -23,6 +26,24 @@ public class GUI extends Application {
 
     @Override
     public void start(final Stage primaryStage) throws Exception {
+
+	/*
+	 * Die Aufgabenstellung wurde wie folgt interpretiert:
+	 * Das Spiel kann auf verschiedenen Rechnern zu zweit gespielt werden.
+	 * Das Spielfeld wird somit bei beiden Clients nach einem Zug aktualisiert.
+	 * Sicherheit wird bei dieser Implementierung allerdings nicht berücksichtigt,
+	 * da beide Clients nicht nur die eigenen Figuren steuern können, sondern auch die des Gegners.
+	 * Dieses Problem ist mit unseren eingeschränkten Möglichkeiten (keinen developer-Zugriff auf den Server)
+	 * nicht lösbar, da das Frontend ohne die Hilfe einer zentralen Stelle keine Unterscheidung der beiden
+	 * Clients vornehmen kann. Beispiel:
+	 * Client A startet die Software und wird Spieler weiß, Client B startet die Software und wird Spieler schwarz.
+	 * Beenden die beiden Clients das Spiel und starten es erneut, kann nicht mehr unterschieden werden, wer
+	 * welche Farbe hatte. Dies ist nur mit Hilfe einem Server möglich, der jedem Client eine spezifische
+	 * Kennung gibt, anhand der man die Clients serverseitig einer Farbe zuordnen kann.
+	 *
+	 * Aufgrund dieses Problems bleibt eine Client-Eingabesperre in dieser Software aus.
+	 */
+
 
 	// Assoziation zum Schachbrett
 	this.brett = new Schachbrett(this);
@@ -70,6 +91,18 @@ public class GUI extends Application {
 	// Zeige Fenster an
 	primaryStage.show();
 
+	// Empfange Neuerungen
+	this.brett.vergleicheFelderForever();
+
+	// Empfange Ereignis, wenn Fenster geschlossen wird
+	// 2. Weg ueber Toolbar -> Exit
+	primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+	    @Override
+	    public void handle(final WindowEvent e) {
+		Platform.exit();
+		System.exit(0);
+	    }
+	});
 
     }
 

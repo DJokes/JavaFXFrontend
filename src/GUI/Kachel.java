@@ -18,6 +18,7 @@ public class Kachel extends VBox {
     private final Schachbrett brett;
     private boolean isMarked = false;
     private String isMarkedFrom;
+    private String resource = "";
 
 
     // Erzeuge eine neue Kachel
@@ -71,6 +72,7 @@ public class Kachel extends VBox {
     // Unproblematisch, da diese Methode erst nach Initialisierung des Objekts aufgerufen wird!
     public void setContent(final String resource) {
 	if(resource != null) {
+	    this.resource = resource;
 	    final Image img = new Image(resource);
 	    this.imgView.setImage(img);
 	    this.subtitle.setText(this.xKoordinate + " " + this.yKoordinate);
@@ -111,8 +113,13 @@ public class Kachel extends VBox {
 	    this.brett.fuehreZugDurch(new int[] {this.xKoordinate, this.yKoordinate}, this.isMarkedFrom);
 	    this.brett.entferneAlleMarker();
 	} else {
-	    this.brett.entferneAlleMarker();
-	    this.brett.holeMoeglicheZuegeFuerEinFeld(new int[] {this.xKoordinate, this.yKoordinate});
+	    // Zeige moegliche Zuege nur an, wenn richtiger Spieler drueckt
+	    if((this.resource.contains(this.brett.getToolClass().getCurrentPlayerColorStringEnglish()))) {
+		this.brett.entferneAlleMarker();
+		this.brett.holeMoeglicheZuegeFuerEinFeld(new int[] {this.xKoordinate, this.yKoordinate});
+	    } else {
+		this.brett.entferneAlleMarker();
+	    }
 	}
 
     }

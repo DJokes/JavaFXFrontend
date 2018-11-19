@@ -1,6 +1,8 @@
 package GUI;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javafx.application.Platform;
 import javafx.scene.layout.GridPane;
@@ -10,15 +12,17 @@ import schach.daten.D;
 import schach.daten.Xml;
 
 public class Schachbrett extends GridPane {
+
     private final GUI gui;
     private final Kachel[][] kachelArray = new Kachel[8][8];
     private final Tools tools;
     private static int id_spiel = 1;
     private static String pfad_spiel = "spielgruppe1";
     private static String rest_basis = "http://www.game-engineering.de:8080/rest/";
-    private static boolean logging = true;
-    BackendSpielAdminStub admin = new BackendSpielAdminStub(rest_basis, logging);
-    BackendSpielStub spiel = new BackendSpielStub(rest_basis, logging);
+    private static boolean logging = false;
+    private final BackendSpielAdminStub admin = new BackendSpielAdminStub(rest_basis, logging);
+    private final BackendSpielStub spiel = new BackendSpielStub(rest_basis, logging);
+    private ArrayList<D> aktuelleBelegung;
 
     // Erzeuge neues Schachbrett
     public Schachbrett(final GUI gui) {
@@ -48,6 +52,9 @@ public class Schachbrett extends GridPane {
     // Setze konkreten Inhalt des Schachbretts
     private void updateSchachbrett(final ArrayList<D> belegung) {
 
+	// Setze Belegung als aktuelle Belegung
+	this.aktuelleBelegung = belegung;
+
 	// Entferne alte Belegung
 	this.removeSchachbrettBelegung();
 
@@ -70,7 +77,6 @@ public class Schachbrett extends GridPane {
 		}
 	    }
 	});
-	System.out.println("Fertig");
 
     }
 
@@ -257,6 +263,38 @@ public class Schachbrett extends GridPane {
 
 	return false;
     }
+
+
+    // Holt die aktuelle Feldbelegung und vergleicht sie mit der lokalen
+    // Wenn es Aenderungen gibt, wird das Feld neu gezeichnet
+    public void vergleicheFelderForever() {
+
+	// Definiere Aufgabe
+	final TimerTask task = new TimerTask() {
+	    @Override
+	    public void run() {
+
+		// Hole neue Belegung
+		final ArrayList<D> belegung = Xml.toArray(Schachbrett.this.spiel.getAktuelleBelegung(id_spiel));
+
+		// Wenn Belegung anders als zuvor, Belegung anwenden
+		if(!Schachbrett.this.aktuelleBelegung.equals(belegung)) {
+		    Schachbrett.this.updateSchachbrett(belegung);
+		    Schachbrett.this.getToolClass().setCurrentPlayerColor(Schachbrett.this.ermittleSpielerFarbe());
+		    Schachbrett.this.getToolClass().setCurrentPlayerLayout();
+		}
+
+	    }
+	};
+
+	// Erstelle Timer als 3 Sekunden
+	final Timer timer = new Timer();
+
+	// Starte Aufgabe fuer immer
+	timer.schedule(task, 0, 3000);
+
+    }
+
 
     // Gibt die Verbindung zur Tool-Klasse zurueck
     public Tools getToolClass() {
