@@ -3,7 +3,9 @@ package GUI;
 public class Tools {
 
     private boolean currentPlayerColor;
+    private boolean isBlack;
     private final Schachbrett brett;
+    private String currentStatus;
 
     public Tools(final Schachbrett brett) {
 	this.brett = brett;
@@ -81,5 +83,36 @@ public class Tools {
 	}
 
     }
+
+    // Gibt zurueck, ob Client Schwarz ist
+    public boolean isBlack() {
+	return this.isBlack;
+    }
+
+    // Setzt die Farbe des Clients
+    public void setIsBlack(final boolean isBlack) {
+	this.isBlack = isBlack;
+    }
+
+    // Gibt als String zurueck, ob Client Schwarz / Weiß ist
+    public String isBlackString() {
+	if(this.isBlack) {
+	    return "schwarz";
+	} else {
+	    return "weiss";
+	}
+    }
+
+    // Setzt den aktuellen Status des Spiels und aktualisiert Anzeige
+    public void setCurrentStatus(final String status) {
+	this.currentStatus = status;
+	this.brett.getGUI().getStatusText().setText(status);
+    }
+
+    // Gibt den aktuellen Status des Spiels
+    public String getCurrentStatus() {
+	return this.currentStatus;
+    }
+
 
 }

@@ -116,23 +116,69 @@ public class Schachbrett extends GridPane {
     // Lade Spiel
     public void loadGame() {
 
-	// Obwohl das Spiel korrekt gespeichert wird, kann das Spiel serverseitig nicht gefunden werden
-	// -> Fehler bei Dopatka?
-	this.admin.ladenSpiel(id_spiel, pfad_spiel);
+	// Spiel wird geladen
+	final ArrayList<D> response = Xml.toArray(this.admin.ladenSpiel(id_spiel, "" + pfad_spiel + ""));
+
+	// Nur wenn alle Daten gesendet wurden
+	if(response.size() > 0) {
+
+	    if(response.get(0).getClass().getSimpleName().toString().equals("D_OK")) {
+		this.gui.showMessage("Erfolg", "Spiel erfolgreich geladen!\n\n" + response.toString());
+	    } else {
+		this.gui.showMessage("Fehler", "Spiel konnte nicht geladen werden!\n\n" + response.toString());
+	    }
+
+	} else {
+	    this.gui.showMessage("Fehler", "Keine validen Daten vom Server!");
+	}
+
+
 
     }
 
     // Speichere Spiel
     public void saveGame() {
-	this.admin.speichernSpiel(id_spiel, pfad_spiel);
+
+	// Spiel wird gespeichert
+	final ArrayList<D> response = Xml.toArray(this.admin.speichernSpiel(id_spiel, pfad_spiel));
+
+	// Nur wenn alle Daten gesendet wurden
+	if(response.size() > 0) {
+
+	    if(response.get(0).getClass().getSimpleName().toString().equals("D_OK")) {
+		this.gui.showMessage("Erfolg", "Spiel erfolgreich gespeichert!\n\n" + response.toString());
+	    } else {
+		this.gui.showMessage("Fehler", "Spiel konnte nicht gespeichert werden!\n\n" + response.toString());
+	    }
+
+	} else {
+	    this.gui.showMessage("Fehler", "Keine validen Daten vom Server!");
+	}
+
     }
 
     // Erzeuge neues Spiel
     public void newGame() {
-	this.admin.neuesSpiel(id_spiel);
-	this.holeAktuelleBelegung();
-	this.getToolClass().setCurrentPlayerColor(false);
-	this.getToolClass().setCurrentPlayerLayout();
+
+	// Spiel wird geladen
+	final ArrayList<D> response = Xml.toArray(this.admin.neuesSpiel(id_spiel));
+
+	// Nur wenn alle Daten gesendet wurden
+	if(response.size() > 0) {
+
+	    if(response.get(0).getClass().getSimpleName().toString().equals("D_OK")) {
+		this.holeAktuelleBelegung();
+		this.getToolClass().setCurrentPlayerColor(false);
+		this.getToolClass().setCurrentPlayerLayout();
+		this.gui.showMessage("Erfolg", "Neues Spiel erfolgreich erstellt!\n\n" + response.toString());
+	    } else {
+		this.gui.showMessage("Fehler", "Spiel konnte nicht erstellt werden!\n\n" + response.toString());
+	    }
+
+	} else {
+	    this.gui.showMessage("Fehler", "Keine validen Daten vom Server!");
+	}
+
     }
 
     // Verlasse Spiel
@@ -221,6 +267,7 @@ public class Schachbrett extends GridPane {
 	    // Wenn Zug ungueltig -> Spieler nicht wechseln!
 	    if(!(zug.getClass().getSimpleName().toString().equals("D_Fehler"))) {
 
+		// Wechsle Spieler
 		this.tools.changeCurrentPlayer();
 
 	    }
@@ -239,26 +286,31 @@ public class Schachbrett extends GridPane {
 	// Hole alle erlaubten Zuege
 	final ArrayList<D> zuege = Xml.toArray(this.spiel.getAlleErlaubtenZuege(id_spiel));
 
-	// 1. Element auswaehlen
-	if(zuege.get(0).getClass().getSimpleName().toString().equals("D_Zug")) {
-	    final String von = zuege.get(0).getProperties().getProperty("von").toString();
-	    if(von != "") {
+	// Nur wenn alle Daten gesendet wurden
+	if(zuege.size() > 0) {
 
-		// Ermittle Farbe der Figur auf dieser Position
-		final ArrayList<D> figur = Xml.toArray(this.spiel.getFigur(id_spiel, von));
+	    // 1. Element auswaehlen
+	    if(zuege.get(0).getClass().getSimpleName().toString().equals("D_Zug")) {
+		final String von = zuege.get(0).getProperties().getProperty("von").toString();
+		if(von != "") {
 
-		// 1. Element auswaehlen
-		if(figur.get(0).getClass().getSimpleName().toString().equals("D_Figur")) {
-		    final String isWeiss = figur.get(0).getProperties().getProperty("isWeiss").toString();
+		    // Ermittle Farbe der Figur auf dieser Position
+		    final ArrayList<D> figur = Xml.toArray(this.spiel.getFigur(id_spiel, von));
 
-		    if(isWeiss.equals("true")) {
-			return false;
-		    } else if(isWeiss.equals("false")) {
-			return true;
+		    // 1. Element auswaehlen
+		    if(figur.get(0).getClass().getSimpleName().toString().equals("D_Figur")) {
+			final String isWeiss = figur.get(0).getProperties().getProperty("isWeiss").toString();
+
+			if(isWeiss.equals("true")) {
+			    return false;
+			} else if(isWeiss.equals("false")) {
+			    return true;
+			}
 		    }
-		}
 
+		}
 	    }
+
 	}
 
 	return false;
@@ -284,6 +336,32 @@ public class Schachbrett extends GridPane {
 		    Schachbrett.this.getToolClass().setCurrentPlayerLayout();
 		}
 
+		// Hole Spieldaten
+		final ArrayList<D> daten = Xml.toArray(Schachbrett.this.spiel.getSpielDaten(id_spiel));
+
+		// Nur wenn alle Daten gesendet wurden
+		if(daten.size() > 0) {
+
+		    // 1. Element auswaehlen
+		    if(daten.get(0).getClass().getSimpleName().toString().equals("D_Spiel")) {
+			final String status = daten.get(0).getProperties().getProperty("status").toString();
+
+			// Wenn sich Status geandert hat
+			if(!status.equals(Schachbrett.this.tools.getCurrentStatus())) {
+
+			    // Je nach Status Werte setzen
+			    if(status.equals("null") || status.equals("")) {
+				Schachbrett.this.tools.setCurrentStatus("keiner");
+			    } else {
+				Schachbrett.this.tools.setCurrentStatus(status);
+			    }
+
+			}
+
+		    } else {
+			Schachbrett.this.tools.setCurrentStatus("keiner");
+		    }
+		}
 	    }
 	};
 

@@ -1,0 +1,26 @@
+
+/*
+ * Dieses Dokument enthält alle Formatierungen des Farbwahl-Fensters.
+ * ID's und CLASS werden über setID() und getStyleClass().add() gesetzt.
+ */
+
+#color-container {
+	-fx-padding: 20px;
+}
+
+.color-element {
+	-fx-min-height:  128px;
+	-fx-max-height:  128px;
+	-fx-min-width:   128px;
+	-fx-max-width:   128px;
+	-fx-pref-height: 128px;
+	-fx-pref-width:  128px;
+	
+	-fx-background-color: #808080;
+	-fx-cursor: hand;
+}
+
+.color-element-text {
+	-fx-font-size: 20px;
+	-fx-fill: #FFFFFF;
+}

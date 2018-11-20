@@ -108,18 +108,23 @@ public class Kachel extends VBox {
     // Wird beim Mausklick auf diese Kachel ausgefuehrt
     private void kachelClicked() {
 
-	// Wenn Kachel markiert ist
-	if(this.isMarked) {
-	    this.brett.fuehreZugDurch(new int[] {this.xKoordinate, this.yKoordinate}, this.isMarkedFrom);
-	    this.brett.entferneAlleMarker();
-	} else {
-	    // Zeige moegliche Zuege nur an, wenn richtiger Spieler drueckt
-	    if((this.resource.contains(this.brett.getToolClass().getCurrentPlayerColorStringEnglish()))) {
+	// Abfragen nur starten, wenn Client dran ist
+	if(this.brett.getToolClass().getCurrentPlayerColorBool() == this.brett.getToolClass().isBlack()) {
+
+	    // Wenn Kachel markiert ist
+	    if(this.isMarked) {
+		this.brett.fuehreZugDurch(new int[] {this.xKoordinate, this.yKoordinate}, this.isMarkedFrom);
 		this.brett.entferneAlleMarker();
-		this.brett.holeMoeglicheZuegeFuerEinFeld(new int[] {this.xKoordinate, this.yKoordinate});
 	    } else {
-		this.brett.entferneAlleMarker();
+		// Zeige moegliche Zuege nur an, wenn richtiger Spieler drueckt
+		if((this.resource.contains(this.brett.getToolClass().getCurrentPlayerColorStringEnglish()))) {
+		    this.brett.entferneAlleMarker();
+		    this.brett.holeMoeglicheZuegeFuerEinFeld(new int[] {this.xKoordinate, this.yKoordinate});
+		} else {
+		    this.brett.entferneAlleMarker();
+		}
 	    }
+
 	}
 
     }

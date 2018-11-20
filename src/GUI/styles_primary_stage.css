@@ -1,18 +1,18 @@
 
 /*
- * Dieses Dokument enthält alle Formatierungen der GUI.
+ * Dieses Dokument enthält alle Formatierungen des Hauptfensters.
  * ID's und CLASS werden über setID() und getStyleClass().add() gesetzt.
  */
  
-#current-player-box {
+#sidebar-box {
 	-fx-padding: 10px 10px 0px 10px;
 }
 
-#current-player-headline {
+#sidebar-headline {
 	-fx-font-size: 18px;
 }
 
-#current-player-color {
+#sidebar-subtitle {
 	-fx-font-size: 16px;
 }
 
